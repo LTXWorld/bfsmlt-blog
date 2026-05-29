@@ -9,9 +9,9 @@ const SRC_DIR = path.join(ROOT, 'src');
 const DIST_DIR = path.join(ROOT, 'dist');
 
 const SITE = {
-  title: 'My Blog',
-  subtitle: '一个极简、文本优先、无依赖的静态博客。',
-  description: 'A minimal static blog built with plain Node.js and Markdown.',
+  title: 'BFSMLT',
+  subtitle: 'Writing, building, and learning in public.',
+  description: 'Personal blog of BFSMLT.',
 };
 
 function ensureDir(dir) {

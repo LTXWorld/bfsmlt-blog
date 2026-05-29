@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const { spawn } = require('child_process');
 
 const ROOT = __dirname;
 const POSTS_DIR = path.join(ROOT, 'posts');
@@ -75,10 +76,20 @@ description:
 
   fs.writeFileSync(postPath, content, 'utf8');
 
+  const relativePath = path.relative(ROOT, postPath);
   console.log('\n已创建新文章：');
-  console.log(path.relative(ROOT, postPath));
-  console.log('\n写完后运行：');
-  console.log('node build.js');
+  console.log(relativePath);
+
+  const editor = process.env.EDITOR;
+  if (editor) {
+    console.log(`\n正在使用 $EDITOR 打开：${relativePath}`);
+    spawn(editor, [postPath], { stdio: 'inherit', shell: true });
+  }
+
+  console.log('\n本地预览：');
+  console.log('npm run serve');
+  console.log('\n构建：');
+  console.log('npm run build');
 }
 
 main().catch((error) => {
