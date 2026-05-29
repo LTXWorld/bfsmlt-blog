@@ -36,7 +36,7 @@ function build() {
   }
 
   building = true;
-  const result = spawnSync(process.execPath, ['build.js'], {
+  const result = spawnSync(process.execPath, ['build.js', '--drafts'], {
     cwd: ROOT,
     stdio: 'inherit',
   });

@@ -57,9 +57,26 @@ body {
   color: var(--accent);
 }
 
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 18px;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.site-nav a {
+  color: var(--muted);
+}
+
+.site-nav a:hover {
+  color: var(--accent);
+}
+
 .site-subtitle {
   max-width: 42rem;
-  margin: 18px 0 0;
+  margin: 14px 0 0;
   color: var(--muted);
   font-size: 1rem;
   font-style: italic;
@@ -175,6 +192,21 @@ hr {
 .post-description {
   margin: 0;
   color: var(--muted);
+}
+
+.draft-badge {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.35em;
+  padding: 0.1em 0.42em;
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.42em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border: 1px solid rgba(143, 63, 36, 0.35);
+  border-radius: 999px;
 }
 
 .post-header {

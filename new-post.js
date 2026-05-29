@@ -71,6 +71,7 @@ async function main() {
 title: ${title}
 date: ${date}
 description:
+draft: true
 ---
 `;
 

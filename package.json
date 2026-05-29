@@ -5,6 +5,7 @@
   "description": "A minimal static blog built with plain Node.js and Markdown.",
   "scripts": {
     "build": "node build.js",
+    "build:drafts": "node build.js --drafts",
     "serve": "node serve.js",
     "new": "node new-post.js",
     "new-post": "node new-post.js"

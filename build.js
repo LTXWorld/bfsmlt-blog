@@ -7,11 +7,13 @@ const ROOT = __dirname;
 const POSTS_DIR = path.join(ROOT, 'posts');
 const SRC_DIR = path.join(ROOT, 'src');
 const DIST_DIR = path.join(ROOT, 'dist');
+const INCLUDE_DRAFTS = process.argv.includes('--drafts');
 
 const SITE = {
   title: 'BFSMLT',
   subtitle: 'Writing, building, and learning in public.',
   description: 'Personal blog of BFSMLT.',
+  url: 'https://blog.bfsmlt.com',
 };
 
 function ensureDir(dir) {
@@ -232,7 +234,28 @@ function formatDate(date) {
   }).format(new Date(`${date}T00:00:00`));
 }
 
-function readPosts() {
+function toRfc822(date) {
+  return new Date(`${date}T00:00:00Z`).toUTCString();
+}
+
+function absoluteUrl(pathname = '') {
+  return `${SITE.url}/${String(pathname).replace(/^\/+/, '')}`;
+}
+
+function escapeXml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
+}
+
+function isDraft(value) {
+  return ['true', 'yes', '1'].includes(String(value || '').trim().toLowerCase());
+}
+
+function readPosts({ includeDrafts = false } = {}) {
   if (!fs.existsSync(POSTS_DIR)) return [];
 
   return fs.readdirSync(POSTS_DIR, { withFileTypes: true })
@@ -246,12 +269,16 @@ function readPosts() {
       const { data, body } = parseFrontmatter(source);
       const fallbackTitle = slug.replace(/^\d{4}-\d{2}-\d{2}-/, '').replaceAll('-', ' ');
 
+      const draft = isDraft(data.draft);
+      if (draft && !includeDrafts) return null;
+
       return {
         slug,
         dir: path.join(POSTS_DIR, slug),
         title: data.title || fallbackTitle,
         date: data.date || slug.slice(0, 10),
         description: data.description || '',
+        draft,
         body,
         html: markdownToHtml(body),
       };
@@ -272,11 +299,80 @@ function renderPage({ title, description, content, basePath = './' }) {
   });
 }
 
+function renderStaticPage(fileName, outputPath, basePath = '../') {
+  const file = path.join(SRC_DIR, fileName);
+  if (!fs.existsSync(file)) return;
+
+  const source = fs.readFileSync(file, 'utf8');
+  const { data, body } = parseFrontmatter(source);
+  const title = data.title || path.basename(fileName, path.extname(fileName));
+  const content = `<article class="page-content">\n${markdownToHtml(body)}\n</article>`;
+  const html = renderPage({
+    title: `${title} · ${SITE.title}`,
+    description: data.description || SITE.description,
+    content,
+    basePath,
+  });
+
+  const target = path.join(DIST_DIR, outputPath);
+  ensureDir(path.dirname(target));
+  fs.writeFileSync(target, html);
+}
+
+function renderRss(posts) {
+  const latest = posts[0]?.date || new Date().toISOString().slice(0, 10);
+  const items = posts.map((post) => `
+    <item>
+      <title>${escapeXml(post.title)}</title>
+      <link>${escapeXml(absoluteUrl(`${post.slug}/`))}</link>
+      <guid>${escapeXml(absoluteUrl(`${post.slug}/`))}</guid>
+      <pubDate>${escapeXml(toRfc822(post.date))}</pubDate>
+      <description>${escapeXml(post.description || post.title)}</description>
+    </item>`).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>${escapeXml(SITE.title)}</title>
+    <link>${escapeXml(SITE.url)}</link>
+    <description>${escapeXml(SITE.description)}</description>
+    <language>en</language>
+    <lastBuildDate>${escapeXml(toRfc822(latest))}</lastBuildDate>${items}
+  </channel>
+</rss>
+`;
+}
+
+function renderSitemap(posts) {
+  const urls = [
+    { loc: absoluteUrl(), priority: '1.0' },
+    { loc: absoluteUrl('about/'), priority: '0.7' },
+    ...posts.map((post) => ({ loc: absoluteUrl(`${post.slug}/`), lastmod: post.date, priority: '0.8' })),
+  ];
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map((url) => `  <url>
+    <loc>${escapeXml(url.loc)}</loc>${url.lastmod ? `\n    <lastmod>${escapeXml(url.lastmod)}</lastmod>` : ''}
+    <priority>${url.priority}</priority>
+  </url>`).join('\n')}
+</urlset>
+`;
+}
+
+function renderRobots() {
+  return `User-agent: *
+Allow: /
+
+Sitemap: ${absoluteUrl('sitemap.xml')}
+`;
+}
+
 function build() {
   emptyDir(DIST_DIR);
   copyFile(path.join(SRC_DIR, 'styles.css'), path.join(DIST_DIR, 'styles.css'));
 
-  const posts = readPosts();
+  const posts = readPosts({ includeDrafts: INCLUDE_DRAFTS });
 
   for (const post of posts) {
     const outputDir = path.join(DIST_DIR, post.slug);
@@ -286,7 +382,7 @@ function build() {
     const content = `
 <article class="post">
   <header class="post-header">
-    <h1>${escapeHtml(post.title)}</h1>
+    <h1>${escapeHtml(post.title)}${post.draft ? ' <span class="draft-badge">Draft</span>' : ''}</h1>
     <time class="post-meta" datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time>
     ${post.description ? `<p class="post-description">${escapeHtml(post.description)}</p>` : ''}
   </header>
@@ -310,7 +406,7 @@ ${post.html}
     ? `<ul class="post-list">
 ${posts.map((post) => `  <li class="post-card">
     <time class="post-meta" datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time>
-    <h2><a href="${post.slug}/index.html">${escapeHtml(post.title)}</a></h2>
+    <h2><a href="${post.slug}/index.html">${escapeHtml(post.title)}</a>${post.draft ? ' <span class="draft-badge">Draft</span>' : ''}</h2>
     ${post.description ? `<p class="post-description">${escapeHtml(post.description)}</p>` : ''}
   </li>`).join('\n')}
 </ul>`
@@ -330,7 +426,12 @@ ${posts.map((post) => `  <li class="post-card">
   });
 
   fs.writeFileSync(path.join(DIST_DIR, 'index.html'), indexPage);
-  console.log(`Built ${posts.length} post(s) into ${path.relative(ROOT, DIST_DIR)}/`);
+  renderStaticPage('about.md', 'about/index.html', '../');
+  fs.writeFileSync(path.join(DIST_DIR, 'rss.xml'), renderRss(posts));
+  fs.writeFileSync(path.join(DIST_DIR, 'sitemap.xml'), renderSitemap(posts));
+  fs.writeFileSync(path.join(DIST_DIR, 'robots.txt'), renderRobots());
+
+  console.log(`Built ${posts.length} post(s) into ${path.relative(ROOT, DIST_DIR)}/${INCLUDE_DRAFTS ? ' (including drafts)' : ''}`);
 }
 
 build();

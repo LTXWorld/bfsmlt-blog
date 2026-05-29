@@ -46,17 +46,50 @@ This creates:
 posts/YYYY-MM-DD-my-new-post/index.md
 ```
 
-The generated Markdown contains only frontmatter:
+The generated Markdown contains frontmatter and is marked as a draft by default:
 
 ```md
 ---
 title: My New Post
 date: 2026-05-29
 description:
+draft: true
 ---
 ```
 
 Write the post content below the frontmatter.
+
+## Drafts
+
+New posts are drafts by default:
+
+```md
+draft: true
+```
+
+Draft posts are included in local preview:
+
+```sh
+npm run serve
+```
+
+Draft posts are not included in production builds:
+
+```sh
+npm run build
+```
+
+To publish a post, remove the draft line or change it to:
+
+```md
+draft: false
+```
+
+If you want to build with drafts manually:
+
+```sh
+npm run build:drafts
+```
 
 ## Add images to a post
 
@@ -91,10 +124,48 @@ http://localhost:8080
 
 `serve.js` watches `posts/` and `src/`, and rebuilds when files change.
 
+## About page
+
+Edit:
+
+```txt
+src/about.md
+```
+
+It is generated as:
+
+```txt
+dist/about/index.html
+```
+
+## RSS, sitemap, and robots.txt
+
+The build also generates:
+
+```txt
+dist/rss.xml
+dist/sitemap.xml
+dist/robots.txt
+```
+
+RSS is available online at:
+
+```txt
+https://blog.bfsmlt.com/rss.xml
+```
+
 ## Build
+
+Production build, excluding drafts:
 
 ```sh
 npm run build
+```
+
+Preview build, including drafts:
+
+```sh
+npm run build:drafts
 ```
 
 Generated files are written to:
