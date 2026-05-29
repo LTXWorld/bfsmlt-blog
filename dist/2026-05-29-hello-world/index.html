@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>你好，静态博客 · My Blog</title>
+  <meta name="description" content="第一篇示例文章：用纯 Node.js、Markdown 和 CSS 搭建一个极简博客。">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="site-title" href="../index.html">My Blog</a>
+      <p class="site-subtitle">一个极简、文本优先、无依赖的静态博客。</p>
+    </header>
+
+    <main>
+      <article class="post">
+  <header class="post-header">
+    <h1>你好，静态博客</h1>
+    <time class="post-meta" datetime="2026-05-29">2026年5月29日</time>
+    <p class="post-description">第一篇示例文章：用纯 Node.js、Markdown 和 CSS 搭建一个极简博客。</p>
+  </header>
+  <div class="post-content">
+<p>这是这个博客的第一篇文章。</p>
+<p>它不是一个复杂系统：没有数据库，没有前端框架，没有客户端路由，也没有追踪脚本。文章只是一些 Markdown 文件，构建脚本把它们变成静态 HTML。</p>
+<h2 id="为什么静态博客">为什么静态博客？</h2>
+<p>静态博客的好处很直接：</p>
+<ul>
+<li>部署简单，可以放在任何静态托管服务上</li>
+<li>页面速度快，几乎不需要运行时成本</li>
+<li>内容长期可保存，Markdown 文件也容易迁移</li>
+<li>设计可以保持克制，把注意力留给文字</li>
+</ul>
+<h2 id="代码片段">代码片段</h2>
+<pre><code class="language-js">console.log(&#39;hello, tiny blog&#39;);</code></pre>
+<h2 id="下一步">下一步</h2>
+<p>你可以在 <code>posts/YYYY-MM-DD-slug/index.md</code> 里继续添加文章，然后运行：</p>
+<pre><code class="language-sh">node build.js</code></pre>
+<p>生成的站点会输出到 <code>dist/</code> 目录。</p>
+  </div>
+  <a class="back-link" href="../index.html">← 返回首页</a>
+</article>
+    </main>
+
+    <footer class="site-footer">
+      <p>Built with plain Node.js · No tracking, no cookies, no frameworks.</p>
+    </footer>
+  </div>
+</body>
+</html>

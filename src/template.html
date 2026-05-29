@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <link rel="stylesheet" href="{{basePath}}styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="site-title" href="{{basePath}}index.html">{{siteTitle}}</a>
+      <p class="site-subtitle">{{siteSubtitle}}</p>
+    </header>
+
+    <main>
+      {{content}}
+    </main>
+
+    <footer class="site-footer">
+      <p>Built with plain Node.js · No tracking, no cookies, no frameworks.</p>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "bfsmlt-blog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A minimal static blog built with plain Node.js and Markdown.",
+  "scripts": {
+    "build": "node build.js",
+    "new-post": "node new-post.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
