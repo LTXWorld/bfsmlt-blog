@@ -182,8 +182,12 @@ hr {
 }
 
 .post-content img {
+  display: block;
   max-width: 100%;
   height: auto;
+  margin: 1.8rem auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
 }
 
 .back-link {

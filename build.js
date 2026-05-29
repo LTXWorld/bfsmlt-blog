@@ -30,6 +30,23 @@ function copyFile(from, to) {
   fs.copyFileSync(from, to);
 }
 
+function copyDirContents(fromDir, toDir, { exclude = new Set() } = {}) {
+  if (!fs.existsSync(fromDir)) return;
+
+  for (const entry of fs.readdirSync(fromDir, { withFileTypes: true })) {
+    if (exclude.has(entry.name)) continue;
+
+    const from = path.join(fromDir, entry.name);
+    const to = path.join(toDir, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirContents(from, to);
+    } else if (entry.isFile()) {
+      copyFile(from, to);
+    }
+  }
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -231,6 +248,7 @@ function readPosts() {
 
       return {
         slug,
+        dir: path.join(POSTS_DIR, slug),
         title: data.title || fallbackTitle,
         date: data.date || slug.slice(0, 10),
         description: data.description || '',
@@ -263,6 +281,7 @@ function build() {
   for (const post of posts) {
     const outputDir = path.join(DIST_DIR, post.slug);
     ensureDir(outputDir);
+    copyDirContents(post.dir, outputDir, { exclude: new Set(['index.md']) });
 
     const content = `
 <article class="post">
